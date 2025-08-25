@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Movie Sentiment Explorer</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    textarea { width: 300px; height: 100px; }
+    button { padding: 10px 20px; margin-top: 10px; }
+    #result { margin-top: 20px; font-size: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🎬 Movie Sentiment Explorer</h1>
+  <p>Type your movie review:</p>
+  <textarea id="review"></textarea><br>
+  <button onclick="analyzeSentiment()">Analyze</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function analyzeSentiment() {
+      const review = document.getElementById("review").value;
+      if (!review) {
+        alert("Please enter a review!");
+        return;
+      }
+
+      const endpoint = "https://movie-sentiment-ai.cognitiveservices.azure.com/"; // e.g. https://movie-sentiment.cognitiveservices.azure.com/
+      const key = "ErOIFzonYugqSQT49U1WFUCteKGr5hbf29u5RDmG9blvheAB56BWJQQJ99BHACGhslBXJ3w3AAAaACOGl0iQ"; // paste your Azure key here
+
+      const url = endpoint + "/text/analytics/v3.0/sentiment";
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Ocp-Apim-Subscription-Key": key,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          documents: [{ id: "1", language: "en", text: review }]
+        })
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      const sentiment = data.documents[0].sentiment;
+      let emoji = "😐";
+      if (sentiment === "positive") emoji = "😊";
+      if (sentiment === "negative") emoji = "😞";
+
+      document.getElementById("result").innerText = 
+        "Sentiment: " + sentiment.toUpperCase() + " " + emoji;
+    }
+  </script>
+</body>
+</html>
